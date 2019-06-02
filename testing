@@ -1,0 +1,2 @@
+curl -X GET "https://6c1c1b91.ngrok.io/webhook?hub.verify_token=<token>&hub.challenge=CHALLENGE_ACCEPTED&hub.mode=subscribe"
+curl -H "Content-Type: application/json" -X POST "https://6c1c1b91.ngrok.io/webhook" -d '{"object": "page", "entry": [{"messaging": [{"message": "TEST_MESSAGE"}]}]}'
