@@ -1,6 +1,7 @@
 'use strict';
 
 process.env.ACCESS_TOKEN = require('./myToken.js').ACCESS_TOKEN
+let {PythonShell} = require('python-shell')
 
 // Imports dependencies and set up http server
 const
@@ -12,11 +13,11 @@ const
   { MessengerClient } = require('messaging-api-messenger'),
   client = MessengerClient.connect(process.env.ACCESS_TOKEN);
 
-const ngrok = require('ngrok');
-(async function(){
-    const url = await ngrok.connect(12345);
-    console.log(url);
-})();
+// const ngrok = require('ngrok');
+// (async function(){
+//     const url = await ngrok.connect(12345);
+//     console.log(url);
+// })();
 
 
 // Creates the endpoint for our webhook
@@ -40,7 +41,20 @@ app.post('/webhook', (req, res) => {
           const userId = webhook_event.sender.id;
           const text = webhook_event.message.text;
 
-          client.sendText(userId, text);
+          let options = {
+              mode: 'text',
+              args:[text]
+          }
+
+          PythonShell.run('get.py', options, function (err, results) {
+              if (err){
+                console.log(err);
+                res.sendStatus(404);
+              }
+              // results is an array consisting of messages collected during execution
+              //console.log('results:', results[0]);
+              client.sendText(userId, results[0]);
+          });
       }
 
     });
@@ -83,12 +97,12 @@ app.get('/webhook', (req, res) => {
 });
 
 
-app.listen(process.env.PORT || 12345, () => console.log('webhook is listening'));
+//app.listen(process.env.PORT || 12345, () => console.log('webhook is listening'));
 
 // Sets server port and logs message on success
-// https.createServer({
-//     key: fs.readFileSync('./ssl/private.key'),
-//     cert: fs.readFileSync('./ssl/certificate.crt'),
-//     ca: fs.readFileSync('./ssl/ca_bundle.crt')
-// }, app)
-// .listen(process.env.PORT || 12345, () => console.log('webhook is listening'));
+https.createServer({
+    key: fs.readFileSync('./ssl/private.key'),
+    cert: fs.readFileSync('./ssl/certificate.crt'),
+    ca: fs.readFileSync('./ssl/ca_bundle.crt')
+}, app)
+.listen(process.env.PORT || 12345, () => console.log('webhook is listening'));
