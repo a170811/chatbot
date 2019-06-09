@@ -19,6 +19,19 @@ const
 //     console.log(url);
 // })();
 
+// let options = {
+//   mode: 'text',
+//   scriptPath: './model/'
+// }
+//
+// PythonShell.run('test.py', options, function (err, results) {
+//   if (err){
+//     console.log(err);
+//   }
+//   // results is an array consisting of messages collected during execution
+//   console.log('results:', results[0]);
+//
+// });
 
 // Creates the endpoint for our webhook
 app.post('/webhook', (req, res) => {
@@ -43,10 +56,10 @@ app.post('/webhook', (req, res) => {
 
           let options = {
               mode: 'text',
-              args:[text]
+              args:[text],
           }
 
-          PythonShell.run('get.py', options, function (err, results) {
+          PythonShell.run('./model/tf_idf.py', options, function (err, results) {
               if (err){
                 console.log(err);
                 res.sendStatus(404);
