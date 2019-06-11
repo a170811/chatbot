@@ -13,25 +13,6 @@ const
   { MessengerClient } = require('messaging-api-messenger'),
   client = MessengerClient.connect(process.env.ACCESS_TOKEN);
 
-// const ngrok = require('ngrok');
-// (async function(){
-//     const url = await ngrok.connect(12345);
-//     console.log(url);
-// })();
-
-// let options = {
-//   mode: 'text',
-//   scriptPath: './model/'
-// }
-//
-// PythonShell.run('test.py', options, function (err, results) {
-//   if (err){
-//     console.log(err);
-//   }
-//   // results is an array consisting of messages collected during execution
-//   console.log('results:', results[0]);
-//
-// });
 
 // Creates the endpoint for our webhook
 app.post('/webhook', (req, res) => {
@@ -59,7 +40,7 @@ app.post('/webhook', (req, res) => {
               args:[text],
           }
 
-          PythonShell.run('./model/tf_idf.py', options, function (err, results) {
+          PythonShell.run('cd ./model && ./tf_idf.py', options, function (err, results) {
               if (err){
                 console.log(err);
                 res.sendStatus(404);
