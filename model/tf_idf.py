@@ -56,7 +56,7 @@ def tf_idf(question, corpus, word_freq):
 
     question = list(jieba.cut(question))
 
-    len_q = len(question)
+    len_q = float(len(question))
     N = float(len(corpus))
     for sentence in corpus:
         sum_val = 0

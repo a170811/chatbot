@@ -1,7 +1,6 @@
 'use strict';
 
 process.env.ACCESS_TOKEN = require('./myToken.js').ACCESS_TOKEN
-let {PythonShell} = require('python-shell')
 
 // Imports dependencies and set up http server
 const
@@ -11,6 +10,7 @@ const
   bodyParser = require('body-parser'),
   app = express().use(bodyParser.json()), // creates express http server
   { MessengerClient } = require('messaging-api-messenger'),
+  child_process = require('child_process'),
   client = MessengerClient.connect(process.env.ACCESS_TOKEN);
 
 
@@ -35,19 +35,15 @@ app.post('/webhook', (req, res) => {
           const userId = webhook_event.sender.id;
           const text = webhook_event.message.text;
 
-          let options = {
-              mode: 'text',
-              args:[text],
-          }
-
-          PythonShell.run('cd ./model && ./tf_idf.py', options, function (err, results) {
-              if (err){
-                console.log(err);
-                res.sendStatus(404);
+          child_process.exec(`cd ./model && ./tf_idf.py ${text}`, (err, stdout, stderr)=>{
+              if(err != null){
+                  console.log('execFile error: ' + err);
+                  console.log('execFile stderr: ' + stderr);
               }
-              // results is an array consisting of messages collected during execution
-              //console.log('results:', results[0]);
-              client.sendText(userId, results[0]);
+              else{
+                  //console.log('results:', stdout);
+                  client.sendText(userId, stdout);
+              }
           });
       }
 
