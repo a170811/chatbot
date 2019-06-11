@@ -1,3 +1,4 @@
+#! /usr/bin/env python3
 #encoding = utf-8
 
 import math
@@ -17,6 +18,7 @@ from timer import timer
 def count_frequency(corpus):
 
     dic = {}
+    #word freq
     for sentence in corpus:
         for word in sentence:
             if word in dic:
@@ -24,11 +26,15 @@ def count_frequency(corpus):
             else:
                 dic[word] = 1
 
-    idx_to_word = []
     for k, v in dic.items():
-        if v > 2:
-            idx_to_word.append(k)
+        if v < 3:
+            continue
+        word_freq[k] = 0
+        for sentence in corpus:
+            if k in sentence:
+                word_freq[k] += 1
 
+    #df
     word_freq = {k:0 for k in idx_to_word}
     for word in idx_to_word:
         for sentence in corpus:
@@ -39,8 +45,7 @@ def count_frequency(corpus):
 
 def tf_idf(question, corpus, word_freq):
 
-    tfidf_matrix = []
-
+    res = []
 
     question = remove_punc(question)
 
@@ -51,18 +56,15 @@ def tf_idf(question, corpus, word_freq):
 
     question = list(jieba.cut(question))
 
+    len_q = len(question)
+    N = float(len(corpus))
     for sentence in corpus:
-
-        tf = []
-        idf = []
+        sum_val = 0
         for word in question:
-            tf.append(sentence.count(word)/len(question))
-            idf.append(math.log(float(len(corpus))/(word_freq.get(word, 0)+1)))
+            sum_val += (sentence.count(word)/len_q) * math.log(N/(word_freq.get(word, 0)+1))
 
-        tfidf_matrix.append(np.multiply(tf, idf))
+        res.append(sum_val)
 
-    tfidf_matrix = np.array(tfidf_matrix)
-    res = np.sum(tfidf_matrix, axis = 1)
     return res
 
 def main():
@@ -82,29 +84,6 @@ def main():
     idx = np.argmax(res)
 
     print(answer[idx][0], answer[idx][1])
-
-
-def test():
-
-    with timer('load cut_qa_combine.pkl'):
-        sentences = pickle.load(open('./data/cut_qa_combine.pkl', 'rb'))
-
-    with timer('load cut_question.pkl'):
-        questions = pickle.load(open('./data/cut_question.pkl', 'rb'))
-
-    with timer('load cut_answer.pkl'):
-        answer = pickle.load(open('./data/cut_answer.pkl', 'rb'))
-
-    with timer('calc word_freq'):
-        word_freq = count_frequency(sentences)
-
-    q = questions[100] if len(argv) < 2 else argv[1]
-
-    with timer('final result'):
-        print(q)
-        res = tf_idf(q, sentences, word_freq)
-        idx = np.argmax(res)
-        print(idx, questions[idx], answer[idx])
 
 
 if '__main__' == __name__:
