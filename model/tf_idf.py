@@ -84,6 +84,7 @@ def main():
     idx = np.argmax(res)
 
     print(answer[idx][0], answer[idx][1])
+    # print(answer[idx][1])
 
 
 if '__main__' == __name__:
